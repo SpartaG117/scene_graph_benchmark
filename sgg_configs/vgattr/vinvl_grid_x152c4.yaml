@@ -1,0 +1,16 @@
+INPUT:
+    MIN_SIZE_TEST: 600 # 240 # 600
+    MAX_SIZE_TEST: 1000 #400 # 1000
+    PIXEL_MEAN: [103.530, 116.280, 123.675]
+DATALOADER:
+    NUM_WORKERS: 0
+TEST:
+    IMS_PER_BATCH: 1
+    SKIP_PERFORMANCE_EVAL: True
+    SAVE_PREDICTIONS: True
+    SAVE_RESULTS_TO_TSV: True
+    TSV_SAVE_SUBSET: ['rect', 'class', 'conf', 'feature']
+    GATHER_ON_CPU: True
+OUTPUT_DIR: "./output/X152C5_test"
+DATA_DIR: "./datasets"
+DISTRIBUTED_BACKEND: 'gloo'
