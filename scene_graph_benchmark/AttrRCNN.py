@@ -5,7 +5,6 @@ Implements the FRCNN with Attribute Head
 import numpy as np
 import torch
 
-from maskrcnn_benchmark.structures.bounding_box import BoxList
 from maskrcnn_benchmark.structures.image_list import to_image_list
 from maskrcnn_benchmark.modeling.detector.generalized_rcnn import \
     GeneralizedRCNN
@@ -57,9 +56,6 @@ class AttrRCNN(GeneralizedRCNN):
         """
         if self.training and targets is None:
             raise ValueError("In training mode, targets should be passed")
-        if self.force_boxes and targets is None:
-            # note targets cannot be None but could have 0 box.
-            raise ValueError("In force_boxes setting, targets should be passed")
 
         images = to_image_list(images)
         images = images.to(self.device)
@@ -69,20 +65,7 @@ class AttrRCNN(GeneralizedRCNN):
             targets = [target.to(self.device)
                        for target in targets if target is not None]
 
-        if self.force_boxes:
-            proposals = [BoxList(target.bbox, target.size, target.mode)
-                         for target in targets]
-            if self.training:
-                # note we still need to compute a loss using all rpn
-                # named parameters, otherwise it will
-                # give unused_parameters error in distributed training.
-                null_loss = 0
-                for key, param in self.rpn.named_parameters():
-                    null_loss += 0.0 * param.sum()
-                proposal_losses = {'rpn_null_loss', null_loss}
-        else:
-            proposals, proposal_losses = self.rpn(images, features, targets)
-
+        proposals, proposal_losses = self.rpn(images, features, targets)
         x, predictions, detector_losses = self.roi_heads(features,
                                                          proposals, targets)
 
